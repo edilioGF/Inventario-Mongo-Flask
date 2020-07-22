@@ -13,14 +13,14 @@ def index():
     return render_template('dashboard.html')
 
 
-@app.route('/movements', methods=['GET'])
-def get_movements():
+# @app.route('/movements', methods=['GET'])
+# def get_movements():
 
-    movements = db.inventaryMovement.find()
-    response = json_util.dumps(movements)
-    print("response", response)
+#     movements = db.inventaryMovement.find()
+#     response = json_util.dumps(movements)
+#     print("response", response)
 
-    return Response(response, mimetype="application/json")
+#     return Response(response, mimetype="application/json")
 
 
 @app.route('/movements', methods=['POST'])
@@ -48,6 +48,11 @@ def insert_movement():
 @app.route('/movements', methods=['GET'])
 def get_movements_page():
     return render_template('movements.html')
+
+
+@app.route('/orders', methods=['GET'])
+def get_orders_page():
+    return render_template('orders.html')
 
 
 if __name__ == "__main__":
