@@ -13,34 +13,34 @@ def index():
     return render_template('dashboard.html')
 
 
-@app.route('/movimientos', methods=['GET'])
+@app.route('/movements', methods=['GET'])
 def get_movements():
 
-    movimientos = db.movimientoInventario.find()
-    response = json_util.dumps(movimientos)
+    movements = db.inventaryMovement.find()
+    response = json_util.dumps(movements)
     print("response", response)
 
     return Response(response, mimetype="application/json")
 
 
-@app.route('/movimientos', methods=['POST'])
+@app.route('/movements', methods=['POST'])
 def insert_movement():
 
-    codigoMovimiento = request.json['codigoMovimiento']
-    codigoAlmacen = request.json['codigoAlmacen']
-    tipoMovimiento = request.json['tipoMovimiento']
-    codigoArticulo = request.json['codigoArticulo']
-    cantidad = request.json['cantidad']
-    unidad = request.json['unidad']
+    movementID = request.json['movementID']
+    warehouseID = request.json['warehouseID']
+    movementType = request.json['movementType']
+    articleID = request.json['articleID']
+    quantity = request.json['quantity']
+    units = request.json['units']
 
-    db.movimientoInventario.insert_one(
+    db.inventaryMovement.insert_one(
         {
-            "codigoMovimiento": codigoMovimiento,
-            "codigoAlmacen": codigoAlmacen,
-            "tipoMovimiento": tipoMovimiento.upper(),
-            "codigoArticulo": codigoArticulo,
-            "cantidad": cantidad,
-            "unidad": unidad,
+            "movementID": movementID,
+            "warehouseID": warehouseID,
+            "movementType": movementType.upper(),
+            "articleID": articleID,
+            "quantity": quantity,
+            "units": units,
         },
     )
     return Response("Movement created.", mimetype="text/plain")
