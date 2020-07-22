@@ -45,6 +45,11 @@ def insert_movement():
     )
     return Response("Movement created.", mimetype="text/plain")
 
+@app.route('/movements', methods=['GET'])
+def get_movements_page():
+    return render_template('movements.html')
+
 
 if __name__ == "__main__":
     app.run()
+
