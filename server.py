@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 from flask_pymongo import PyMongo
 from bson import json_util
 
@@ -33,18 +33,17 @@ def insert_movement():
     cantidad = request.json['cantidad']
     unidad = request.json['unidad']
 
-
-db.movimientoInventario.insert_one(
-    {
-        "codigoMovimiento": codigoMovimiento,
-        "codigoAlmacen": codigoAlmacen,
-        "tipoMovimiento": tipoMovimiento.upper(),
-        "codigoArticulo": codigoArticulo,
-        "cantidad": cantidad,
-        "unidad": unidad,
-    },
-)
-return Response(response, mimetype="application/json")
+    db.movimientoInventario.insert_one(
+        {
+            "codigoMovimiento": codigoMovimiento,
+            "codigoAlmacen": codigoAlmacen,
+            "tipoMovimiento": tipoMovimiento.upper(),
+            "codigoArticulo": codigoArticulo,
+            "cantidad": cantidad,
+            "unidad": unidad,
+        },
+    )
+    return Response("Movement created.", mimetype="text/plain")
 
 
 if __name__ == "__main__":
