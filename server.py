@@ -17,17 +17,6 @@ articlesDictHelper = {}
 def index():
     return render_template('dashboard.html')
 
-
-# @app.route('/movements', methods=['GET'])
-# def get_movements():
-
-#     movements = db.inventaryMovement.find()
-#     response = json_util.dumps(movements)
-#     print("response", response)
-
-#     return Response(response, mimetype="application/json")
-
-
 @app.route('/movements', methods=['POST'])
 def insert_movement():
 
@@ -84,6 +73,11 @@ def get_movements_page():
 def get_orders_page():
     return render_template('orders.html', articles=articlesDictHelper.items())
 
+@app.route('/orders', methods=['POST'])
+def get_order():
+    date = request.form.get('date')
+    return render_template('orders.html', articles=articlesDictHelper.items())
+
 
 @app.route('/newArticle', methods=['POST'])
 def add_article():
@@ -99,7 +93,6 @@ def add_article():
     if (len(articlesDict) == 0):
         articlesDict["article1"] = article
  
-
     for article in articlesDict.values():
         articlesDictHelper[articleName] = {'name' : article['nombre'], 'quantity': quantity, 'date': date}
 
