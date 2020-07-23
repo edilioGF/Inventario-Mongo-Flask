@@ -4,6 +4,7 @@ from flask_pymongo import PyMongo
 from bson import json_util
 import json
 import bson
+from helper import automaticOrder
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/tareaCompras"
@@ -77,6 +78,33 @@ def get_orders_page():
 @app.route('/orders', methods=['POST'])
 def get_order():
     date = request.form.get('date')
+
+    ''' 
+    
+    TODO
+    
+    Fix data to complete requirements... For more info go to helper line 190 
+    Also dont know if articles in data (down at line 86) works fine or what
+
+    '''
+
+    ''' Generate automatic order using helper file'''
+    data = {
+        "date": date,
+        "articles": articlesDict.values()
+    }
+
+    automaticOrder(data)
+
+
+    ''' 
+    
+    TODO
+
+    somehow refresh orders list in orders page
+
+    '''
+
     return redirect(url_for('get_orders_page'))
 
 
