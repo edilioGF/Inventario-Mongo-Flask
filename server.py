@@ -62,6 +62,7 @@ def get_orders_page():
 def add_article():
     articleName = request.form.get('article')
     quantity = request.form.get('quantity')
+    date = request.form.get('date')
     article = db.articles.find_one({"codigo": articleName})
 
     for i in range(len(articlesDict)):
@@ -71,12 +72,9 @@ def add_article():
     if (len(articlesDict) == 0):
         articlesDict["article1"] = article
  
-    response = json_util.dumps(article)
-    print("Articles: ")
-    print(articlesDict)
 
     for article in articlesDict.values():
-        articlesDictHelper[article['codigo']] = {'name' : article['nombre'], 'quantity': quantity, 'date': '02/02/2020'}
+        articlesDictHelper[articleName] = {'name' : article['nombre'], 'quantity': quantity, 'date': date}
 
     print(articlesDictHelper)
 
