@@ -1,4 +1,5 @@
-from flask import Flask, render_template, Response, request
+from flask import Flask
+from flask import render_template, Response, request, redirect, url_for
 from flask_pymongo import PyMongo
 from bson import json_util
 
@@ -6,6 +7,8 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/tareaCompras"
 mongo = PyMongo(app)
 db = mongo.db
+articlesDict = {}
+articlesDictHelper = {}
 
 
 @app.route("/")
@@ -52,7 +55,33 @@ def get_movements_page():
 
 @app.route('/orders', methods=['GET'])
 def get_orders_page():
-    return render_template('orders.html')
+    return render_template('orders.html', articles=articlesDictHelper.items())
+
+
+@app.route('/newArticle', methods=['POST'])
+def add_article():
+    articleName = request.form.get('article')
+    quantity = request.form.get('quantity')
+    article = db.articles.find_one({"codigo": articleName})
+
+    for i in range(len(articlesDict)):
+        if (i == (len(articlesDict) - 1)):
+            articlesDict["article" + str(i + 2)] = article
+
+    if (len(articlesDict) == 0):
+        articlesDict["article1"] = article
+ 
+    response = json_util.dumps(article)
+    print("Articles: ")
+    print(articlesDict)
+
+    for article in articlesDict.values():
+        articlesDictHelper[article['codigo']] = {'name' : article['nombre'], 'quantity': quantity, 'date': '02/02/2020'}
+
+    print(articlesDictHelper)
+
+
+    return redirect(url_for('get_orders_page'))
 
 
 if __name__ == "__main__":
