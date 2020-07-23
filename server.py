@@ -2,6 +2,8 @@ from flask import Flask
 from flask import render_template, Response, request, redirect, url_for
 from flask_pymongo import PyMongo
 from bson import json_util
+import json
+import bson
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/tareaCompras"
@@ -29,14 +31,14 @@ def index():
 @app.route('/movements', methods=['POST'])
 def insert_movement():
 
-    movementID = request.json['movementID']
-    warehouseID = request.json['warehouseID']
-    movementType = request.json['movementType']
-    articleID = request.json['articleID']
-    quantity = request.json['quantity']
-    units = request.json['units']
-
-    db.inventaryMovement.insert_one(
+    movementID = db.movements.count() + 1
+    warehouseID = request.form.get('warehouseID')
+    movementType = request.form.get('movementType')
+    articleID = request.form.get('articleID')
+    quantity = int(request.form.get('quantity'))
+    units = 'x'
+    
+    db.movements.insert_one(
         {
             "movementID": movementID,
             "warehouseID": warehouseID,
@@ -46,11 +48,36 @@ def insert_movement():
             "units": units,
         },
     )
-    return Response("Movement created.", mimetype="text/plain")
+    
+    article = db.articles.aggregate([
+        { "$match": { "codigo": { "$eq": articleID } } },
+        { "$unwind": "$disponibilidad" },
+        { "$match": { "disponibilidad.codigoAlmacen": { "$eq": warehouseID } } },
+        { "$project": {"_id" : 0, "cantidad": "$disponibilidad.cantidad", } }
+    ])
+
+    currentQuantity = json_util.dumps(article)
+    currentQuantity = currentQuantity.replace('[', '')
+    currentQuantity = currentQuantity.replace(']', '')
+
+    current = json.loads(currentQuantity)['cantidad']
+
+    if (movementType.upper() == 'ENTRY'):
+        newQuantity = current + quantity
+    else:
+        newQuantity = current - quantity
+
+    db.articles.update_one(
+        {"codigo" : articleID, "disponibilidad.codigoAlmacen" : warehouseID},
+        { "$set" : { "disponibilidad.$.cantidad" : newQuantity }}
+    )
+
+    return redirect(url_for('get_movements_page'))
 
 @app.route('/movements', methods=['GET'])
 def get_movements_page():
-    return render_template('movements.html')
+    data = db.movements.find().sort('movementID', -1)
+    return render_template('movements.html', movements = data)
 
 
 @app.route('/orders', methods=['GET'])
@@ -81,7 +108,16 @@ def add_article():
 
     return redirect(url_for('get_orders_page'))
 
+@app.route('/<warehouseId>/articles', methods=['GET'])
+def get_warehouse_articles(warehouseId):
+
+    articles = db.articles.aggregate([
+        { "$unwind": "$disponibilidad" },
+        { "$match": { "disponibilidad.codigoAlmacen": { "$eq": warehouseId } } },
+        { "$project": {"_id" : 0, "codigo": "$codigo", "nombre": "$nombre" } }
+    ])
+    json_articles = json_util.dumps(articles)
+    return Response(json_articles, mimetype="application/json")
 
 if __name__ == "__main__":
     app.run()
-

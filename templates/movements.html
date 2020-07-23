@@ -5,25 +5,28 @@
     <h1 class="h3 mb-0 mt-3 text-gray-800">Movements</h1>
 </div>
 
-<form method="POST" action="/movements/register">
+<form method="POST" action="/movements">
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="row">
                 <div class="col-6 mb-sm-2">
                     <label class="text-dark">WareHouse:</label>
-                    <select name="warehouse" id="warehouse-select" class="form-control form-control-user">
+                    <select name="warehouseID" id="warehouse-select" class="form-control form-control-user">
                         <option value="">Choose a Warehouse</option>
+                        <option value="ALM-001">Warehouse-1</option>
+                        <option value="ALM-002">Warehouse-2</option>
+                        <option value="ALM-003">Warehouse-3</option>
                     </select>
                 </div>
                 <div class="col-6 mb-sm-2">
                     <label class="text-dark">Article:</label>
-                    <select name="article" id="article-select" class="form-control form-control-user">
+                    <select name="articleID" id="article-select" class="form-control form-control-user">
                         <option value="">Choose an Article</option>
                     </select>
                 </div>
                 <div class="col-6 mb-sm-2">
                     <label class="text-dark">Movement Type:</label>
-                    <select name="movement_type" id="movement-select" class="form-control form-control-user">
+                    <select name="movementType" id="movement-select" class="form-control form-control-user">
                         <option value="exit">Exit</option>
                         <option value="entry">Entry</option>
                     </select>
@@ -53,15 +56,50 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for movement in movements %}
                     <tr>
-                        <td>WR-001</td>
-                        <td>ART-001</td>
-                        <td>Entry</td>
-                        <td>10</td>
+                        <td>{{movement.warehouseID}}</td>
+                        <td>{{movement.articleID}}</td>
+                        <td>{{movement.movementType}}</td>
+                        <td>{{movement.quantity}}</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+	$(document).ready(() => {   
+
+        const fetchArticles = () => {
+            const id_warehouse = $("#warehouse-select :selected").val();
+            $.ajax({
+                url: "/"+id_warehouse+"/articles",
+                method:'GET', 
+                    success: function (data) {
+                    console.log(data)
+                    $('#article-select').not(':first').remove();
+                    let html = '';
+                    for(var i = 0; i < data.length; i++) {
+                        console.log(data[i])
+                        html += '<option value="'+ data[i]['codigo'] + '">'+ data[i]['nombre'] +'</option>';
+                    }
+
+                    $('#article-select option').first().after(html);
+                }
+            });
+        }
+
+        $("#warehouse-select").change(
+            fetchArticles
+        );
+
+    });
+
+</script>
 {% endblock %}
