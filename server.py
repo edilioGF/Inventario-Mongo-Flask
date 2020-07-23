@@ -71,12 +71,13 @@ def get_movements_page():
 
 @app.route('/orders', methods=['GET'])
 def get_orders_page():
-    return render_template('orders.html', articles=articlesDictHelper.items())
+    select_articles = db.articles.find()
+    return render_template('orders.html', articles=articlesDictHelper.items(), select_articles=select_articles)
 
 @app.route('/orders', methods=['POST'])
 def get_order():
     date = request.form.get('date')
-    return render_template('orders.html', articles=articlesDictHelper.items())
+    return redirect(url_for('get_orders_page'))
 
 
 @app.route('/newArticle', methods=['POST'])
