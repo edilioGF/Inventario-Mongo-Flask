@@ -76,6 +76,8 @@
 
 <div class="card shadow mb-4">
     <div class="card-body">
+        {% for key, value in orders.items() %}
+        <h1>{{ key }}</h1>
         <div class="table-responsive">
             <table class="table table-bordered" width="100%" cellspacing="0">
                 <thead>
@@ -86,7 +88,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for order in orders%}
+                    {% for order in value %}
                     <tr>
                         <td>{{order['orderDate']}}</td>
                         <td>{{order['articleID']}}</td>
@@ -96,6 +98,7 @@
                 </tbody>
             </table>
         </div>
+        {% endfor %}
     </div>
 </div>
 

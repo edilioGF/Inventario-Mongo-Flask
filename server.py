@@ -77,7 +77,21 @@ def get_movements_page():
 def get_orders_page():
     select_articles = db.articles.find()
     orders = db.orders.find()
-    return render_template('orders.html', articles=articlesDictHelper.items(), select_articles=select_articles, orders=orders)
+
+    order_helper = json_util.dumps(orders)
+    mixOrders = json.loads(order_helper)
+ 
+    separatedOrders = {}
+
+    for order in mixOrders:
+        if ( order['supplierID'] not in separatedOrders ):
+            separatedOrders[order['supplierID']] = [order]
+        else:
+            separatedOrders[order['supplierID']].append(order)
+    
+    print(separatedOrders)
+
+    return render_template('orders.html', articles=articlesDictHelper.items(), select_articles=select_articles, orders=separatedOrders)
 
 @app.route('/orders', methods=['POST'])
 def get_order():
