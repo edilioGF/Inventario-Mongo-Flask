@@ -80,28 +80,15 @@ def get_orders_page():
 def get_order():
     date = request.form.get('date')
 
-    ''' 
-    
-    TODO
-
-    Fix data to complete requirements... For more info go to helper line 190 
-    Also dont know if articles in data (down at line 86) works fine or what
-
-    '''
-
-    ''' Generate automatic order using helper file'''
     data = {
         "date": date,
         "articles": articlesDict
     }
 
-    print(data)
-
     orders = automaticOrder(data, db)
-    print("orders? ", orders)
     print(json.dumps(orders, indent=4, sort_keys=True))
-    # articlesDict = {}
-    # articlesDictHelper = {}
+    articlesDict.clear()
+    articlesDictHelper.clear()
 
     ''' 
     
@@ -125,11 +112,6 @@ def add_article():
     articlesDict[articleID]['quantity'] = quantity
  
     articlesDictHelper[articleID] = {'name' : article['nombre'], 'quantity': quantity, 'code': articleID}
-
-    # print(articlesDict)
-    # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    # print(articlesDictHelper)
-
 
     return redirect(url_for('get_orders_page'))
 
