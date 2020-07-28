@@ -73,7 +73,21 @@ def automaticOrder(data, db):
 
     for article in articles.values():
 
-        dailyConsumption = 2
+        exitMovements = db.movements.find({'articleID': article['codigo'], 'movementType': 'EXIT' }).count()
+
+        if ( exitMovements > 0 ):
+            avgMovements = db.movements.aggregate([
+                { '$match': { 'movementType': 'EXIT', 'articleID': 'ART-001' } },
+                { '$group': { '_id': '$articleID', 'avgMovement': { '$avg': "$quantity" } } },
+                { '$project': {'_id' : 0, 'avgMovement': { '$ceil': '$avgMovement' } } }
+            ])
+
+            daily = json_util.dumps(avgMovements)
+            daily = daily.replace('[', '')
+            daily = daily.replace(']', '')
+            dailyConsumption = int(json.loads(daily)['avgMovement'])
+        else:
+            dailyConsumption = 2
 
         consumedToDate = dailyConsumption * diff
 
@@ -113,3 +127,4 @@ def automaticOrder(data, db):
         helper = helper + 1
 
     return orders
+    

@@ -14,7 +14,6 @@ db = mongo.db
 articlesDict = {}
 articlesDictHelper = {}
 
-
 @app.route("/")
 def index():
     return render_template('dashboard.html')
@@ -128,6 +127,3 @@ def get_warehouse_articles(warehouseId):
 
 if __name__ == "__main__":
     app.run()
-
-
-
