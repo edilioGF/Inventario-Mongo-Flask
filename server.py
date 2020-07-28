@@ -53,9 +53,9 @@ def insert_movement():
     current = json.loads(currentQuantity)['cantidad']
 
     if (movementType.upper() == 'ENTRY'):
-        newQuantity = current + quantity
+        newQuantity = int(current) + int(quantity)
     else:
-        newQuantity = current - quantity
+        newQuantity = int(current) - int(quantity)
 
     db.articles.update_one(
         {"codigo" : articleID, "disponibilidad.codigoAlmacen" : warehouseID},
@@ -67,13 +67,17 @@ def insert_movement():
 @app.route('/movements', methods=['GET'])
 def get_movements_page():
     data = db.movements.find().sort('movementID', -1)
+    # for mov in data:
+    #     print(mov['articleID'])
+
     return render_template('movements.html', movements = data)
 
 
 @app.route('/orders', methods=['GET'])
 def get_orders_page():
     select_articles = db.articles.find()
-    return render_template('orders.html', articles=articlesDictHelper.items(), select_articles=select_articles)
+    orders = db.orders.find()
+    return render_template('orders.html', articles=articlesDictHelper.items(), select_articles=select_articles, orders=orders)
 
 @app.route('/orders', methods=['POST'])
 def get_order():
@@ -89,7 +93,20 @@ def get_order():
     articlesDict.clear()
     articlesDictHelper.clear()
 
-    ''' 
+    if(orders) :
+        for art in orders.values():
+            result = db.orders.insert_one(
+            {
+                "articleID": art['articles']['articleID'],
+                "buyPrice": art['articles']['buyPrice'],
+                "orderedQuantity": art['articles']['orderedQuantity'],
+                "orderDate": art['orderDate'],
+                "supplierID": art['supplierID'],
+                "totalAmount": art['totalAmount'],
+            },
+            )
+
+    '''     
     
     TODO
 

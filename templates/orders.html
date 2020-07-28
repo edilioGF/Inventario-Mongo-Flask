@@ -86,11 +86,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for order in orders%}
                     <tr>
-                        <td>07/22/2020</td>
-                        <td>ART-001</td>
-                        <td>10</td>
+                        <td>{{order['orderDate']}}</td>
+                        <td>{{order['articleID']}}</td>
+                        <td>{{order['orderedQuantity']}}</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
