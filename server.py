@@ -6,6 +6,7 @@ import json
 import bson
 from helper import automaticOrder
 
+
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/tareaCompras"
 mongo = PyMongo(app)
@@ -82,7 +83,7 @@ def get_order():
     ''' 
     
     TODO
-    
+
     Fix data to complete requirements... For more info go to helper line 190 
     Also dont know if articles in data (down at line 86) works fine or what
 
@@ -91,11 +92,16 @@ def get_order():
     ''' Generate automatic order using helper file'''
     data = {
         "date": date,
-        "articles": articlesDict.values()
+        "articles": articlesDict
     }
 
-    automaticOrder(data)
+    print(data)
 
+    orders = automaticOrder(data, db)
+    print("orders? ", orders)
+    print(json.dumps(orders, indent=4, sort_keys=True))
+    # articlesDict = {}
+    # articlesDictHelper = {}
 
     ''' 
     
@@ -110,22 +116,19 @@ def get_order():
 
 @app.route('/newArticle', methods=['POST'])
 def add_article():
-    articleName = request.form.get('article')
+    articleID = request.form.get('article')
     quantity = request.form.get('quantity')
     date = request.form.get('date')
-    article = db.articles.find_one({"codigo": articleName})
+    article = db.articles.find_one({"codigo": articleID})
 
-    for i in range(len(articlesDict)):
-        if (i == (len(articlesDict) - 1)):
-            articlesDict["article" + str(i + 2)] = article
-
-    if (len(articlesDict) == 0):
-        articlesDict["article1"] = article
+    articlesDict[articleID] = article
+    articlesDict[articleID]['quantity'] = quantity
  
-    for article in articlesDict.values():
-        articlesDictHelper[articleName] = {'name' : article['nombre'], 'quantity': quantity, 'date': date}
+    articlesDictHelper[articleID] = {'name' : article['nombre'], 'quantity': quantity, 'code': articleID}
 
-    print(articlesDictHelper)
+    # print(articlesDict)
+    # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    # print(articlesDictHelper)
 
 
     return redirect(url_for('get_orders_page'))
@@ -143,3 +146,6 @@ def get_warehouse_articles(warehouseId):
 
 if __name__ == "__main__":
     app.run()
+
+
+

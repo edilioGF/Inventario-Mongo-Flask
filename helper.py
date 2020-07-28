@@ -5,15 +5,15 @@ import json
 from pymongo import MongoClient
 from pymongo import ASCENDING, DESCENDING
 
-client = MongoClient('localhost')
+# client = MongoClient('localhost')
 
-db = client['tareaCompras']
+# db = client['tareaCompras']
 
-articleSupplier = db['articleSupplier']
-articles = db['articles']
+# articleSupplier = db['articleSupplier']
+# articles = db['articles']
 
-def bestSupplier(articleID, dateDiff):
-    supplier = articleSupplier.aggregate([
+def bestSupplier(articleID, dateDiff, db):
+    supplier = db.articleSupplier.aggregate([
         {
             "$match": {
                 "codigoArticulo": articleID,
@@ -32,8 +32,8 @@ def bestSupplier(articleID, dateDiff):
     return json_supplier[0]
 
 
-def calculateActualBalance(articleID):
-    result = articles.aggregate([
+def calculateActualBalance(articleID, db):
+    result = db.articles.aggregate([
         {"$match": {"codigo": articleID}},
         {"$unwind": "$disponibilidad"},
         {
@@ -53,10 +53,10 @@ def calculateActualBalance(articleID):
     ])
     response = json_util.dumps(result)
     json_article = json.loads(response)
-    print(json_article[0]['precioUnidad'])
+    # print(json_article[0]['precioUnidad'])
 
-    actualBalance = json_article[0]['precioUnidad']
-    unitPrice = json_article[0]['balanceActual']
+    actualBalance = int(json_article[0]['precioUnidad'])
+    unitPrice = int(json_article[0]['balanceActual'])
 
     return unitPrice, actualBalance
 
@@ -71,10 +71,18 @@ def newDateBuilder(d1, d2):
     d1 = datetime.strptime(d1, "%Y-%m-%d")
     return (d1 + timedelta(days=d2)).strftime("%Y-%m-%d")
 
-
-def automaticOrder(data):
+def automaticOrder(data, db):
+    print("im in?")
     date, articles = data.values()
     diff = differenceInDays(date)
+    # dara = {
+    #     date: "",
+    #     articles: {
+    #         {},
+    #         {}, 
+    #         {},
+    #     }
+    # }
 
     orders = {}
     dailyConsumption = 0
@@ -84,19 +92,21 @@ def automaticOrder(data):
     arrHelper = []
 
     for article in articles.values():
+        print("inside for")
 
         dailyConsumption = 2
         wantedDateConsumption = dailyConsumption * diff
+        ''' Tener en cuenta el balance actual ^^'''
 
-        unitPrice, actualBalance = calculateActualBalance(article['codigo'])
+        unitPrice, actualBalance = calculateActualBalance(article['codigo'], db)
 
-        print(article)
-        orderedQuantity = wantedDateConsumption + article['quantity'] - actualBalance
+        # print(article)
+        orderedQuantity = wantedDateConsumption + int(article['quantity']) - actualBalance
 
         if (orderedQuantity <= 0):
             return
 
-        supplier = bestSupplier(article['codigo'], diff)
+        supplier = bestSupplier(article['codigo'], diff, db)
 
         if (not supplier):
             return
@@ -122,6 +132,10 @@ def automaticOrder(data):
         # orders[supplier['codigoSuplidor']] = order
         orders[helper] = order
         helper = helper + 1
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        print(orders)
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
     return orders
 
     # print("Orders")
@@ -184,15 +198,13 @@ data = {
         }
     }
 
-automaticOrder(data)
+# automaticOrder(data)
 
 '''
 
 TODO
 
 NEEDS FOR THIS TO WORK: 
-    -Pass db to this file (somehow ?)
-    -Add quantitiy atribute to article in dict
     -Check result according to Alfredo's requirements
     -Try to fix orders (it creates 2 orders from the same supplier
         somehow try to get them together on the same order)

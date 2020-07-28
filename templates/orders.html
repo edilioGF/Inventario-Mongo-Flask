@@ -6,7 +6,7 @@
     <h1 class="h3 mb-0 mt-3 text-gray-800">Orders</h1>
 </div>
 
-<form method="POST" action="/movements/register">
+<form method="POST" action="/orders">
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="row">
@@ -46,9 +46,11 @@
                     </thead>
                     <tbody>
                         {% for key, value in articles %}
-                        <td>{{key}}</td>
-                        <td>{{value['name']}}</td>
-                        <td>{{value['quantity']}}</td>
+                        <tr>
+                            <td>{{value['code']}}</td>
+                            <td>{{value['name']}}</td>
+                            <td>{{value['quantity']}}</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
